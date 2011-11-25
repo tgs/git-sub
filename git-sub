@@ -1,4 +1,36 @@
-#~/bin/bash
+#/bin/bash
 
-echo "HI THERE"
+USAGE="no idea"
+LONG_USAGE="no idea"
+SUBDIRECTORY_OK="yes"
+. git-sh-setup
+cd_to_toplevel
+set -eu
+
+function git_sub_commit_from_svn() {
+	SOURCE_COMMIT=$(git rev-parse --revs-only $1)
+	if ! git rev-parse from-svn > /dev/null; then
+		COMMIT=git commit-tree ${SOURCE_COMMIT}^{tree}
+	else
+		COMMIT=git commit-tree ${SOURCE_COMMIT}^{tree} -p from-svn
+	fi
+	git update-ref from-svn $COMMIT
+}
+		
+		
+		
+
+function git_sub_init() {
+	#git commit-tree refs/remotes/git-svn^{tree} ...
+	git branch --no-track for-svn refs/remotes/git-svn
+	git branch --no-track from-svn refs/remotes/git-svn
+}
+
+case "$1" in
+init)
+	git_sub_init ;;
+*)
+	die "Unknown git sub command" ;;
+esac
+
 
