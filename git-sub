@@ -17,18 +17,32 @@ function git_sub_commit_from_svn() {
 	git update-ref from-svn $COMMIT
 }
 		
-		
+function read_note_pointer() {
+	rev_in=`git rev-parse $1`
+	GIT_NOTES_REF='refs/notes/git-sub' git notes -l $rev_in
+}
 		
 
 function git_sub_init() {
+	for SVNREV in `git rev-list refs/remotes/git-svn`; do
+		echo $SVNREV
+	done
 	#git commit-tree refs/remotes/git-svn^{tree} ...
 	git branch --no-track for-svn refs/remotes/git-svn
 	git branch --no-track from-svn refs/remotes/git-svn
 }
 
+if [ $# -lt 1 ]; then
+	die "Subcommand required"
+fi
+
 case "$1" in
 init)
 	git_sub_init ;;
+read-note-pointer)
+	read_note_pointer "$@" ;;
+commit-from-svn)
+	git_sub_commit_from_svn "$@" ;;
 *)
 	die "Unknown git sub command" ;;
 esac
